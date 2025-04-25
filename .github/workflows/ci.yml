@@ -1,1 +1,44 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        pytest tests/
+
+    - name: Generate certificates (пример)
+      run: |
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+          -keyout cert.key -out cert.crt \
+          -subj "/C=RU/ST=Moscow/L=Moscow/O=OnlineShop/CN=example.com"
+
+    - name: Notify success
+      if: success()
+      run: echo "Build succeeded!"
+
+    - name: Notify failure
+      if: failure()
+      run: echo "Build failed!"
 
